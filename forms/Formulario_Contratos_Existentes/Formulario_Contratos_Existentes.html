@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="stylesheet" type="text/css" href="http://fluig.sebraepb.com.br:8080/resources/style-guide/css/fluig-style-guide.min.css">
+    <script src="http://fluig.sebraepb.com.br:8080/resources/js/jquery/jquery.js"></script>
+    <script src="http://fluig.sebraepb.com.br:8080/resources/js/jquery/jquery-ui.min.js"></script>
+    <script src="http://fluig.sebraepb.com.br:8080/resources/js/mustache/mustache-min.js"></script>
+    <script src="http://fluig.sebraepb.com.br:8080/resources/style-guide/js/fluig-style-guide.min.js"></script>
+
+    <!-- CUSTOM -->
+    <link href="http://fluig.sebraepb.com.br:8080/resources/style-guide/css/fluig-style-guide-filter.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fluig.sebraepb.com.br:8080/resources/style-guide/css/fluig-style-guide-ratingstars.min.css" rel="stylesheet" type="text/css">
+    <script src="http://fluig.sebraepb.com.br:8080/resources/style-guide/js/fluig-style-guide-filter.min.js"></script>
+    <script src="http://fluig.sebraepb.com.br:8080/resources/style-guide/js/fluig-style-guide-ratingstars.min.js"></script>
+
+    <link href='http://fluig.sebraepb.com.br:8080/webdesk/customresources?cid=1&resourceName=temaFormulario/0.css' type='text/css' rel='stylesheet' />
+    
+    <script>
+    	
+    	function setSelectedZoomItem(selectedItem) {
+    		
+    		var idcnt = selectedItem["IDCNT"];
+    		var valorcontrato = selectedItem["VALORCONTRATO"];
+    		var repasse = selectedItem["REPASSE"];
+    		var saldo = selectedItem["SALDO"];
+    		var nomecontrato = selectedItem["NOMECONTRATO"];
+    		
+    		var gerente = selectedItem["GERENTE"];
+ 			var gerenteusuario = selectedItem["GERENTEUSUARIO"];
+ 			var diretor = selectedItem["DIRETOR"];
+ 			var agencia = selectedItem["SECAO"];
+ 			var codfilial = selectedItem["CODFILIAL"];
+ 			var codven = selectedItem["CODVEN"];
+ 			var coddepto = selectedItem["CODDEPTO"];
+ 			var depto = selectedItem["DEPTO"];
+    		
+    		var zoomitm = selectedItem.inputName; 
+ 			var itemlinha = zoomitm.substring(0,15);
+    		
+    		if(selectedItem.inputId == "rm_contratosativos"){
+    			document.getElementById("tbIdCnt").value = idcnt;
+    			document.getElementById("tbValorCnt").value = valorcontrato;
+    			document.getElementById("tbValorRepasse").value = repasse;
+    			document.getElementById("tbSaldo").value = saldo;
+    			document.getElementById("tbNomeContrato").value = nomecontrato;
+    		} else if(itemlinha == "rm_itemcontrato"){
+    			
+    			var cImLinha = selectedItem.inputName.substring(15,selectedItem.inputName.lenght);
+ 				var seqlinha = selectedItem["NSEQITMCNT"];
+ 				var precolinha = selectedItem["VLRUNITARIO"];
+ 				document.getElementById("rm_prodseq"+cImLinha).value = seqlinha;
+ 				document.getElementById("rmvalor"+cImLinha).value = precolinha;
+    		} else if (selectedItem.inputId == "rm_dadoscolab"){
+ 				document.getElementById("tbGerente").value = gerente;
+ 				document.getElementById("tbGerenteUsuario").value = gerenteusuario;
+ 				document.getElementById("tbDiretor").value = diretor;
+ 				document.getElementById("tbAgencia").value = agencia;
+ 				document.getElementById("tbFilial").value = codfilial;
+ 				document.getElementById("tbCodVen").value = codven;
+ 				document.getElementById("rm_depto").value = depto;
+ 				document.getElementById("rm_coddepto").value = coddepto;
+ 				//reloadZoomFilterValues("rm_depto", "CODFILIALDEPTO,"+codfilial);
+    		}
+    		
+    	}
+    	
+    	/* Função para carregar os itens do Contrato no Zoom de Itens de Contrato baseado no Zoom de Contrato */
+    	function sfTableZoom(ciNomeTlb){
+			//Cria a Linha da tabela (wdkAddChild padrão) e também captura o numero da linha posicionada
+			var niLinha	=	wdkAddChild(ciNomeTlb)
+
+        	var ciTabela	= document.all["tbIdCnt"].value;
+			console.log("Tabela: " + ciTabela);
+        	var niCont 		= 0;
+        	var ciCpoItem	= "rm_itemcontrato___"+niLinha;
+			var oiObjField 	= document.all[ciCpoItem];
+			
+			if(oiObjField != null)  {				
+				reloadZoomFilterValues(ciCpoItem, 'IDCNTITEM,'+ciTabela);				
+			}
+		}
+    	
+    	function sfQtd(oField) {
+ 			var nPos 			= oField.name.lastIndexOf('_');
+        	var ciFldQtdVen		= "rmquant_" + oField.name.substr(nPos-1, 5);
+        	var ciFldVlrUnit	= "rmvalor_" + oField.name.substr(nPos-1, 5);
+        	var ciFldNroDia		= "rmnrodiarias_" + oField.name.substr(nPos-1, 5);
+        	var ciFldVlrTotal	= "rmtotal_" + oField.name.substr(nPos-1, 5);
+        	
+        	var niQtdVen 		= document.all[ciFldQtdVen].value;
+        	var niVlrUnit 		= sfStringToNumber(document.all[ciFldVlrUnit].value);
+        	var niNroDia 		= document.all[ciFldNroDia].value;
+        	var niVlrTotal 		= niQtdVen * niVlrUnit * niNroDia;
+
+        	var ciVlrTotal 		= sfFormatZeros(niVlrTotal);
+        	
+        	document.all[ciFldVlrTotal].value = sfFormatZeros(niVlrTotal);
+        	
+        	sfSubTotal();
+ 		}
+    	
+    	function sfSubTotal() {
+			var niCont 			= 0;
+			var niNumberVlrTot 	= 0;
+			var ciCpoVlrTotal	= "rmtotal___";
+			var oiObjField 		= document.all[ciCpoVlrTotal + niCont];
+			//Fixado em 80 para poder tratar o subtotal, poder ser alterado, conforme a necessidade
+			while(niCont < 80) {
+				niCont 			= niCont+1;
+				oiObjField 		= document.all[ciCpoVlrTotal + niCont];
+						
+				if(oiObjField != null) {					
+					niNumberVlrTot += sfStringToNumber(oiObjField.value);	
+				}
+			} 
+			document.all["numberVlrTot"].value = sfFormatZeros(niNumberVlrTot);	
+		}
+ 		
+ 		function sfStringToNumber(cNumber) {
+			return parseFloat(cNumber.replace(",", "."));
+		}
+ 		
+ 		function sfFormatZeros(nNumber) {
+			var cNumber = nNumber.toString().replace(".", ",");
+			var nPos = cNumber.search(',');
+			var nDif = cNumber.length - nPos;
+			if(nPos == -1)
+				cNumber = cNumber+",00";
+			else if( nDif == 2 )
+				cNumber = cNumber+"0";
+			else if( nDif >= 4 )
+				cNumber = cNumber.substr(0, cNumber.length - nDif + 3);
+			return cNumber;
+		}
+    
+    </script>
+</head>
+
+<body class="fluig-style-guide">
+		<form class="totvs-form grid vertical create-form-components ui-sortable t0" name="createFormComponents" style="padding-left: 10px; padding-right: 10px;">        
+		
+		<!--cabeçalho-->
+		<div class="panel panel-default" >
+			<div class="panel-body">
+				<div class="col-md-3">
+					<img src="logo.png" alt="logo"></img>
+				</div>
+				<div class="col-md-9">
+					<h1>Utilização de Contratos Existentes</h1>
+				</div>
+			</div>
+		</div>
+		
+		<div class="panel panel-default" id="painel_contrato">
+			  		<div class="panel-heading" style="color: #F7F7F7; background-color: #2e66b7; padding: 7px;">
+			    		<h2 class="panel-title"><span class="fluigicon fluigicon-form fluigicon-sm"></span>&nbsp;Dados do Contrato</h2>
+			 		</div>
+			 		
+			 		<div class="panel-body">
+		    		<div class="row" style="margin-bottom: 50px">
+		
+		<!-- *** Dados do Contrato *** -->
+        <fieldset id="fsContrato" name="fsContrato">															    						    	
+						
+						<div class="col-md-12">
+							<div class="form-input">
+								<div class="form-group">					
+									<label for="tbNomePessoa"></label>
+									<div class="row">
+										<div class="col-xs-2 col-sm-2 col-md-2"><label>Login</label>
+									       	<input type="text" class="form-control" id="tbCodPessoa" name="tbCodPessoa"
+											readonly/>
+										</div>
+											
+										<div class="col-xs-6 col-sm-6 col-md-6"><label>Nome</label>
+										   	<input type="text" class="form-control" id="tbNomePessoa" name="tbNomePessoa" 
+										   	readonly/>
+										</div>
+																	
+										<div class="col-xs-6 col-sm-6 col-md-6 fs-no-padding-left" style="display: none;">
+										   	<input type="text" class="form-control" id="tbChapaPessoa" name="tbChapaPessoa" 
+										   	readonly/>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div class="col-md-12" data-type="zoomfield" data-show-properties="" data-field-name="rm_dadoscolab" id="colabzoom">
+								<div class="form-input">
+									<div class="form-group">
+										<label for="zoom">Dados do Colaborador</label>
+										<div class="input-group">
+											<input type="zoom" name="rm_dadoscolab" id="rm_dadoscolab"
+												data-zoom="{'displayKey':'NOME','datasetId':'rm_consulta_dadoscolaborador',
+													'fields':[
+		 			                    				{'field':'NOME','label':'Colaborador','standard':true},
+		 			                    				{'field':'SECAO','label':'Agência','standard':true},
+		 			                    				{'field':'DIRETOR','label':'Diretor','standard':true},
+		 			                    				{'field':'GERENTE','label':'Gerente','standard':true}]}">
+											<div class="input-group-addon zoom-preview">
+												<span class="fluigicon fluigicon-zoom-in"></span>
+											</div>
+										</div>
+									</div>
+								</div>
+						</div>
+						
+						<div class="col-md-3" data-type="textbox" data-show-properties="" data-field-name="tbGerente">
+				            <div class="form-input">
+				                <div class="form-group"><label>Gerente</label>
+				                	<input type="text" class="form-control" id="tbGerente" name="tbGerente" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-3" data-type="textbox" data-show-properties="" data-field-name="tbDiretor">
+				            <div class="form-input">
+				                <div class="form-group"><label>Diretor</label>
+				                	<input type="text" class="form-control" id="tbDiretor" name="tbDiretor" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-6" data-type="textbox" data-show-properties="" data-field-name="tbAgencia">
+				            <div class="form-input">
+				                <div class="form-group"><label>Agência</label>
+				                	<input type="text" class="form-control" id="tbAgencia" name="tbAgencia" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-1" data-type="textbox" data-show-properties="" data-field-name="tbFilial" style="display: none;">
+				            <div class="form-input">
+				                <div class="form-group"><label>Filial</label>
+				                	<input type="text" class="form-control" id="tbFilial" name="tbFilial" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-2" data-type="textbox" data-show-properties="" data-field-name="tbGerenteUsuario" style="display: none;">
+				            <div class="form-input">
+				                <div class="form-group"><label>Gerente Usuario</label>
+				                	<input type="text" class="form-control" id="tbGerenteUsuario" name="tbGerenteUsuario" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-2" data-type="textbox" data-show-properties="" data-field-name="tbCodVen" style="display: none;">
+				            <div class="form-input">
+				                <div class="form-group"><label>Cod.Ven</label>
+				                	<input type="text" class="form-control" id="tbCodVen" name="tbCodVen" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-10" data-type="textbox" data-show-properties="" data-field-name="rm_depto">
+				            <div class="form-input">
+				                <div class="form-group"><label>Departamento</label>
+				                	<input type="text" class="form-control" id="rm_depto" name="rm_depto" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-2" data-type="textbox" data-show-properties="" data-field-name="rm_coddepto" style="display: none;">
+				            <div class="form-input">
+				                <div class="form-group"><label>Cod.Depto</label>
+				                	<input type="text" class="form-control" id="rm_coddepto" name="rm_coddepto" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+						
+						<div class="col-md-10" data-type="zoomfield" data-show-properties="" data-field-name="rm_contratosativos" id="rm_contratoszoom">
+								<div class="form-input">
+									<div class="form-group">
+										<label for="zoom">Contratos</label><span class="required text-danger"><strong>*</strong></span>
+										<div class="input-group">
+											<input type="zoom" name="rm_contratosativos" id="rm_contratosativos"
+												data-zoom="{'displayKey':'NOMEFANTASIA','datasetId':'rm_consulta_contratosativos',
+													'fields':[
+		 			                    				{'field':'NOMEFANTASIA','label':'Contrato','standard':true},
+		 			                    				{'field':'SALDO','label':'Saldo','standard':true}]}">
+											<div class="input-group-addon zoom-preview">
+												<span class="fluigicon fluigicon-zoom-in"></span>
+											</div>
+										</div>
+									</div>
+								</div>
+						</div>
+						
+						<div class="col-md-2" data-type="textbox" data-show-properties="" data-field-name="tbIdCnt">
+				            <div class="form-input">
+				                <div class="form-group"><label>Id. Contrato</label>
+				                	<input type="text" class="form-control" id="tbIdCnt" name="tbIdCnt" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-4" data-type="textbox" data-show-properties="" data-field-name="tbValorCnt">
+				            <div class="form-input">
+				                <div class="form-group"><label>Valor Contrato</label>
+				                	<input type="text" class="form-control" id="tbValorCnt" name="tbValorCnt" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-4" data-type="textbox" data-show-properties="" data-field-name="tbValorRepasse">
+				            <div class="form-input">
+				                <div class="form-group"><label>Valor Repasse</label>
+				                	<input type="text" class="form-control" id="tbValorRepasse" name="tbValorRepasse" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-4" data-type="textbox" data-show-properties="" data-field-name="tbSaldo">
+				            <div class="form-input">
+				                <div class="form-group"><label>Saldo</label>
+				                	<input type="text" class="form-control" id="tbSaldo" name="tbSaldo" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-4" data-type="textbox" data-show-properties="" data-field-name="tbNomeContrato" style="display: none;">
+				            <div class="form-input">
+				                <div class="form-group"><label>Nome do Contrato</label><span class="required text-danger"><strong>*</strong></span>
+				                	<input type="text" class="form-control" id="tbNomeContrato" name="tbNomeContrato" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-6" data-type="textbox" data-show-properties="" data-field-name="nomeevento" id="nomeevento">
+				            <div class="form-input">
+				                <div class="form-group"><label>Nome do Evento</label><span class="required text-danger"><strong>*</strong></span>
+				                	<input type="text" class="form-control" name="nomeevento" id="nomeevento" value="" placeholder="" data-size="big" required="required">
+				                </div>
+				            </div>
+				        </div>
+				        
+				        <div class="col-md-3" data-type="date" data-show-properties="" data-field-name="datainicial">
+					            <div class="form-input">
+					                <div class="form-group">
+					                    <label>Data Inicial</label><span class="required text-danger"><strong>*</strong></span>
+					                    <input id="datainicial" name="datainicial" type="text" class="form-control" data-date="">
+					                </div>
+					            </div>
+					    </div>
+					    
+					    <div class="col-md-3" data-type="date" data-show-properties="" data-field-name="datafinal">
+					            <div class="form-input">
+					                <div class="form-group">
+					                    <label>Data Final</label><span class="required text-danger"><strong>*</strong></span>
+					                    <input id="datafinal" name="datafinal" type="text" class="form-control" data-date="">
+					                </div>
+					            </div>
+					    </div>
+				        
+				        <div class="col-md-12" data-type="tabledetail" data-show-properties="" data-field-name="lista_de_demanda">
+				            <div class="form-input">
+				               <div class="form-group">
+				                  <label>Demanda</label>
+				                  <table tablename="tableItem" id="tableItem" class="table" noaddbutton="true" >
+				                     <thead>
+				                        <tr class="tableHeadRow">
+				                           <th class="tableColumn">Item</th>
+				                           <th class="tableColumn">Quant.</th>
+				                           <th class="tableColumn">Valor Unit.</th>
+				                           <th class="tableColumn">Nro. Diárias</th>
+				                           <th class="tableColumn">Valor Total</th>
+				                        </tr>
+				                     </thead>
+				                     <tbody>
+				                        <tr class="tableBodyRow">
+				                           <td class="col-md-4">	                              					       
+							                    <div class="input-group" data-type="zoomfield" data-show-properties="" data-field-name="rm_itemcontrato">
+																<input type="zoom" name="rm_itemcontrato" id="rm_itemcontrato"
+																	data-zoom="{'displayKey':'ITEM','datasetId':'rm_consulta_itenscontrato',
+																		'fields':[
+							 			                    				{'field':'ITEM','label':'Produto','standard':true}]}">
+																<div class="input-group-addon zoom-preview">
+																	<span class="fluigicon fluigicon-zoom-in"></span>
+																</div>
+												</div>							            	                              
+				                           </td>			                           		                           
+				                           
+				                           <td class="col-md-2">
+				                              <div class="form-input">
+				                              	<input type="text" class="form-control" id="rmquant" name="rmquant" value="" placeholder="" data-size="big">
+				                              </div>
+				                           </td>
+				                           
+				                           <td class="col-md-2">
+				                              <div class="form-input">
+				                              	<input type="text" class="form-control" id="rmvalor" name="rmvalor" value="" placeholder="" data-size="big" >
+				                              </div>
+				                           </td>
+				                           
+				                           <td class="col-md-2">
+				                              <div class="form-input">
+				                              	<input type="text" class="form-control" id="rmnrodiarias" name="rmnrodiarias" value="" placeholder="" data-size="big" onchange="sfQtd(this);">
+				                              </div>
+				                           </td>
+				                           
+				                           <td class="col-md-2">
+				                              <div class="form-input">
+				                              	<input type="text" class="form-control" id="rmtotal" name="rmtotal" value="" placeholder="" data-size="big">
+				                              </div>
+				                           </td>
+				                           
+				                           <td class="col-md-2" style="display: none;">
+				                              <div class="form-input" >
+				                              	<input type="text" class="form-control" id="rm_codprod" name="rm_codprod" value="" placeholder="" data-size="big" readonly>
+				                              </div>
+				                           </td>
+				                           
+				                           <td class="col-md-2" style="display: none;">
+				                              <div class="form-input" >
+				                              	<input type="text" class="form-control" id="rm_idprod" name="rm_idprod" value="" placeholder="" data-size="big" readonly>
+				                              </div>
+				                           </td>
+				                           
+				                           <td class="col-md-1" style="display: none;">
+				                              <div class="form-input" >
+				                              	<input type="text" class="form-control" id="rm_prodseq" name="rm_prodseq" value="" placeholder="" data-size="big" readonly>
+				                              </div>
+				                           </td>
+				                           
+				                        </tr>
+				                     </tbody>
+				                  </table>
+				                  <button type="button" class="btn btn-primary" onclick="sfTableZoom('tableItem')">Incluir Item</button>
+				               </div>
+				            </div>			            
+		         		</div>
+		         		
+		         		<div class="col-md-12" data-type="text" data-show-properties="" data-field-name="numberVlrTot" style="position: relative; left: 0px; top: 0px;">
+				            <div class="form-input">
+				               <div class="form-group">
+				               		<label>Valor Total</label>
+				               		<input type="text" mask="#00.000.000.000.000,00" class="form-control" id="numberVlrTot" name="numberVlrTot" value="" placeholder="" data-size="small" data-only-numbers="" style="width: 25%;" readonly>
+				               </div>
+				            </div>
+			        	</div>
+		         		   		
+		         		<!-- ************* Área das Observações e Aprovações ************* -->
+
+		         		<div class="col-md-12" data-type="textarea" data-show-properties="" data-field-name="justinecess" id="justinecess">
+				            <div class="form-input">
+				                <div class="form-group">
+				                    <label>Justificativa da Necessidade</label>
+				                    <textarea class="form-control" rows="3" id="justinecess" name="justinecess" placeholder="" data-size="big"></textarea>
+				                </div>
+				            </div>
+				    	 </div>
+			
+				</fieldset>	
+			
+			</div>
+			</div>
+			</div>
+			
+			
+			<div class="panel panel-default" id="painel_aprovacoes">
+			  		<div class="panel-heading" style="color: #F7F7F7; background-color: #2e66b7; padding: 7px;">
+			    		<h2 class="panel-title"><span class="fluigicon fluigicon-form fluigicon-sm"></span>&nbsp;Aprovações</h2>
+			 		</div>
+			 		
+			 		<div class="panel-body">
+		    		<div class="row" style="margin-bottom: 50px">
+		
+					<!-- *** Aprovações *** -->
+			        <fieldset id="fsAprovacoes" name="fsAprovacoes">
+			
+				    	 
+				    	 <!-- ************* Confirmação Fornecedor ************* -->
+			
+						<div class="col-md-12" data-type="radio" data-show-properties="" data-field-name="certidaoFornec">
+				            <div class="form-input">
+				                <div class="form-group">
+				                    <label>Fornecedor apresenta regularidade fiscal e trabalhista? (Anexar certidões)</label>
+				                    <div class="radio-options">
+				                        <div class="radio"><label><input type="radio" name="certidaoFornec" value="Sim">Sim</label></div>
+				                        <div class="radio"><label><input type="radio" name="certidaoFornec" value="Nao">Não</label></div>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+						
+						<div class="col-md-12" data-type="radio" data-show-properties="" data-field-name="disponibilFornec">
+				            <div class="form-input">
+				                <div class="form-group">
+				                    <label>Fornecedor confirmou disponibilidade de atendimento?</label>
+				                    <div class="radio-options">
+				                        <div class="radio"><label><input type="radio" name="disponibilFornec" value="Sim">Sim</label></div>
+				                        <div class="radio"><label><input type="radio" name="disponibilFornec" value="Nao">Não</label></div>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+						
+						<!-- ************* Autorização Gerente ************* -->
+						
+						<div class="col-md-12" data-type="radio" data-show-properties="" data-field-name="aprovGerente">
+				            <div class="form-input">
+				                <div class="form-group">
+				                    <label>Autorização do Gerente?</label>
+				                    <div class="radio-options">
+				                        <div class="radio"><label><input type="radio" name="aprovGerente" value="Sim">Deferido</label></div>
+				                        <div class="radio"><label><input type="radio" name="aprovGerente" value="Nao">Indeferido</label></div>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+				        
+				        <div class="col-md-12" data-type="textarea" data-show-properties="" data-field-name="obsaprovGerente" id="obsaprovGerente">
+							<div class="form-input">
+						    	<div class="form-group">
+						        	<label>Comentários do Gerente:</label>
+						            <textarea class="form-control" rows="3" id="obsaprovGerente" name="obsaprovGerente" placeholder="" data-size="big"></textarea>
+						        </div>
+						    </div>
+						</div>
+						
+						<!-- ************* Autorização Gerente UGAL ************* -->
+						
+						<div class="col-md-12" data-type="radio" data-show-properties="" data-field-name="aprovGerenteUGAL">
+				            <div class="form-input">
+				                <div class="form-group">
+				                    <label>Autorização do Gerente UGAL?</label>
+				                    <div class="radio-options">
+				                        <div class="radio"><label><input type="radio" name="aprovGerenteUGAL" value="Sim">Deferido</label></div>
+				                        <div class="radio"><label><input type="radio" name="aprovGerenteUGAL" value="Nao">Indeferido</label></div>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+				        
+				        <div class="col-md-12" data-type="textarea" data-show-properties="" data-field-name="obsaprovGerenteUGAL" id="obsaprovGerenteUGAL">
+							<div class="form-input">
+						    	<div class="form-group">
+						        	<label>Comentários do Gerente UGAL:</label>
+						            <textarea class="form-control" rows="3" id="obsaprovGerenteUGAL" name="obsaprovGerenteUGAL" placeholder="" data-size="big"></textarea>
+						        </div>
+						    </div>
+						</div>
+						
+						<!-- ************* Autorização DIREX ************* -->
+						
+						<div class="col-md-12" data-type="radio" data-show-properties="" data-field-name="aprovDIREX">
+				            <div class="form-input">
+				                <div class="form-group">
+				                    <label>Autorização do DIREX?</label>
+				                    <div class="radio-options">
+				                        <div class="radio"><label><input type="radio" name="aprovDIREX" value="Sim">Deferido</label></div>
+				                        <div class="radio"><label><input type="radio" name="aprovDIREX" value="Nao">Indeferido</label></div>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+				        
+				        <div class="col-md-12" data-type="textarea" data-show-properties="" data-field-name="obsaprovDIREX" id="obsaprovDIREX">
+							<div class="form-input">
+						    	<div class="form-group">
+						        	<label>Comentários do DIREX:</label>
+						            <textarea class="form-control" rows="3" id="obsaprovDIREX" name="obsaprovDIREX" placeholder="" data-size="big"></textarea>
+						        </div>
+						    </div>
+						</div>
+						
+						<!-- ************* CLOG Compras - Analisar Demanda ************* -->
+						
+						<div class="col-md-12" data-type="radio" data-show-properties="" data-field-name="pergAditivo">
+				            <div class="form-input">
+				                <div class="form-group">
+				                    <label>Há necessidade de Aditivo?</label>
+				                    <div class="radio-options">
+				                        <div class="radio"><label><input type="radio" name="pergAditivo" value="Sim">Sim</label></div>
+				                        <div class="radio"><label><input type="radio" name="pergAditivo" value="Nao">Não</label></div>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+				        
+				        <div class="col-md-12" data-type="textarea" data-show-properties="" data-field-name="obsAditivo" id="obsAditivo">
+							<div class="form-input">
+						    	<div class="form-group">
+						        	<label>Justificativa do aditivo:</label>
+						            <textarea class="form-control" rows="3" id="obsAditivo" name="obsAditivo" placeholder="" data-size="big"></textarea>
+						        </div>
+						    </div>
+						</div>											
+						
+						<!-- ************* CLOG Finalização - Analisar Conformidade ************* -->
+						
+						<div class="col-md-12" data-type="radio" data-show-properties="" data-field-name="optSimplesNacional">
+				            <div class="form-input">
+				                <div class="form-group">
+				                    <label>Optante pelo Simples Nacional?</label>
+				                    <div class="radio-options">
+				                        <div class="radio"><label><input type="radio" name="optSimplesNacional" value="Sim">Deferido</label></div>
+				                        <div class="radio"><label><input type="radio" name="optSimplesNacional" value="Nao">Indeferido</label></div>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+						
+						<div class="col-md-12" data-type="radio" data-show-properties="" data-field-name="aprovClogFinalizacao">
+				            <div class="form-input">
+				                <div class="form-group">
+				                    <label>Autorização CLOG Finalização?</label>
+				                    <div class="radio-options">
+				                        <div class="radio"><label><input type="radio" name="aprovClogFinalizacao" value="Sim">Deferido</label></div>
+				                        <div class="radio"><label><input type="radio" name="aprovClogFinalizacao" value="Nao">Indeferido</label></div>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+				        
+				        <div class="col-md-12" data-type="textarea" data-show-properties="" data-field-name="obsaprovClogFinalizacao" id="obsaprovClogFinalizacao">
+							<div class="form-input">
+						    	<div class="form-group">
+						        	<label>Comentários do CLOG Finalização:</label>
+						            <textarea class="form-control" rows="3" id="obsaprovClogFinalizacao" name="obsaprovClogFinalizacao" placeholder="" data-size="big"></textarea>
+						        </div>
+						    </div>
+						</div>
+						
+						<!-- ************* Autorização Pagamento Gerente ************* -->
+						
+						<div class="col-md-12" data-type="radio" data-show-properties="" data-field-name="aprovPagGerente">
+				            <div class="form-input">
+				                <div class="form-group">
+				                    <label>Autorização do Pagamento (Gerente)?</label>
+				                    <div class="radio-options">
+				                        <div class="radio"><label><input type="radio" name="aprovPagGerente" value="Sim">Deferido</label></div>
+				                        <div class="radio"><label><input type="radio" name="aprovPagGerente" value="Nao">Indeferido</label></div>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+				        
+				        <div class="col-md-12" data-type="textarea" data-show-properties="" data-field-name="obsaprovPagGerente" id="obsaprovPagGerente">
+							<div class="form-input">
+						    	<div class="form-group">
+						        	<label>Comentários do Gerente:</label>
+						            <textarea class="form-control" rows="3" id="obsaprovPagGerente" name="obsaprovPagGerente" placeholder="" data-size="big"></textarea>
+						        </div>
+						    </div>
+						</div>
+						
+						<!-- ************* Autorização Pagamento DIREX ************* -->
+						
+						<div class="col-md-12" data-type="radio" data-show-properties="" data-field-name="aprovPagDIREX">
+				            <div class="form-input">
+				                <div class="form-group">
+				                    <label>Autorização do Pagamento (DIREX)?</label>
+				                    <div class="radio-options">
+				                        <div class="radio"><label><input type="radio" name="aprovPagDIREX" value="Sim">Deferido</label></div>
+				                        <div class="radio"><label><input type="radio" name="aprovPagDIREX" value="Nao">Indeferido</label></div>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+				        
+				        <div class="col-md-12" data-type="textarea" data-show-properties="" data-field-name="obsaprovPagDIREX" id="obsaprovPagDIREX">
+							<div class="form-input">
+						    	<div class="form-group">
+						        	<label>Comentários do Gerente:</label>
+						            <textarea class="form-control" rows="3" id="obsaprovPagDIREX" name="obsaprovPagDIREX" placeholder="" data-size="big"></textarea>
+						        </div>
+						    </div>
+						</div>
+						
+		</fieldset>	
+		
+		</div>
+		</div>
+		</div>
+		
+		
+		<div class="panel panel-default" id="painel_avalfornecedor">
+			  		<div class="panel-heading" style="color: #F7F7F7; background-color: #2e66b7; padding: 7px;">
+			    		<h2 class="panel-title"><span class="fluigicon fluigicon-form fluigicon-sm"></span>&nbsp;Avaliação Fornecedor</h2>
+			 		</div>
+			 		
+			 		<div class="panel-body">
+		    		<div class="row" style="margin-bottom: 50px">
+		
+		<!-- *** Dados do Contrato *** -->
+        <fieldset id="fsAvalfornecedor" name="fsAvalfornecedor">
+        
+        				<div class="panel panel-default" id="aval_atendimento">
+					  		<div class="panel-heading" style="color: #F7F7F7; background-color: #fabf8f; padding: 7px;">
+					    		<h2 class="panel-title"><span class="fluigicon fluigicon-form fluigicon-sm"></span>&nbsp;ATENDIMENTO</h2>
+					 		</div>
+					 		
+					 		<div class="panel-body">
+				    		<div class="row" style="margin-bottom: 1px">
+        
+				        				<div class="col-md-4" data-type="radio" data-show-properties="" data-field-name="aval01">
+								            <div class="form-input">
+								                <div class="form-group">
+								                    <label>O fornecedor esteve acessível para contatos e solicitações?</label><span class="required text-danger"><strong>*</strong></span>
+								                    <div class="radio-options">
+								                        <div class="radio">
+								                        	<label><input type="radio" name="aval01" value="1,7">Sim</label>
+								                        	<label><input type="radio" name="aval01" value="1,7">Não</label>
+								                        </div>
+								                    </div>
+								                </div>
+								            </div>
+								        </div>
+								        
+								        <div class="col-md-8" data-type="textarea" data-show-properties="" data-field-name="aval01_coment" id="aval01_coment">
+											<div class="form-input">
+										    	<div class="form-group">
+										        	<label>Comentários (Não obrigatório)</label>
+										            <textarea class="form-control" rows="3" id="aval01_coment" name="aval01_coment" placeholder="" data-size="big"></textarea>
+										        </div>
+										    </div>
+										</div>
+						
+						</div>
+						</div>
+						</div>
+						
+						<div class="panel panel-default" id="aval_prazo">
+					  		<div class="panel-heading" style="color: #F7F7F7; background-color: #92cddc; padding: 7px;">
+					    		<h2 class="panel-title"><span class="fluigicon fluigicon-form fluigicon-sm"></span>&nbsp;PRAZO</h2>
+					 		</div>
+					 		
+					 		<div class="panel-body">
+				    		<div class="row" style="margin-bottom: 1px">
+				        
+								        <div class="col-md-4" data-type="radio" data-show-properties="" data-field-name="aval02">
+								            <div class="form-input">
+								                <div class="form-group">
+								                    <label>Entregas do objeto do contrato foram realizadas dentro do prazo estabelecido?</label><span class="required text-danger"><strong>*</strong></span>
+								                    <div class="radio-options">
+								                        <div class="radio">
+								                        	<label><input type="radio" name="aval02" value="1,7">Sim</label>
+								                        	<label><input type="radio" name="aval02" value="1,7">Não</label>
+								                        </div>
+								                    </div>
+								                </div>
+								            </div>
+								        </div>
+								        
+								        <div class="col-md-8" data-type="textarea" data-show-properties="" data-field-name="aval02_coment" id="aval02_coment">
+											<div class="form-input">
+										    	<div class="form-group">
+										        	<label>Comentários (Não obrigatório):</label>
+										            <textarea class="form-control" rows="3" id="aval02_coment" name="aval02_coment" placeholder="" data-size="big"></textarea>
+										        </div>
+										    </div>
+										</div>
+						
+						</div>
+						</div>
+						</div>
+						
+						<div class="panel panel-default" id="aval_falha">
+					  		<div class="panel-heading" style="color: #F7F7F7; background-color: #b1a0c7; padding: 7px;">
+					    		<h2 class="panel-title"><span class="fluigicon fluigicon-form fluigicon-sm"></span>&nbsp;FALHA</h2>
+					 		</div>
+					 		
+					 		<div class="panel-body">
+				    		<div class="row" style="margin-bottom: 1px">
+				        
+								        <div class="col-md-4" data-type="radio" data-show-properties="" data-field-name="aval03">
+								            <div class="form-input">
+								                <div class="form-group">
+								                    <label>Houve falta de algum produto ou serviço causando má execução ou inexecução do fornecimento?</label><span class="required text-danger"><strong>*</strong></span>
+								                    <div class="radio-options">
+								                        <div class="radio">
+								                        	<label><input type="radio" name="aval03" value="1,7">Sim</label>
+								                        	<label><input type="radio" name="aval03" value="1,7">Não</label>
+								                        </div>
+								                    </div>
+								                </div>
+								            </div>
+								        </div>
+								        
+								        <div class="col-md-8" data-type="textarea" data-show-properties="" data-field-name="aval03_coment" id="aval03_coment">
+											<div class="form-input">
+										    	<div class="form-group">
+										        	<label>Comentários (Não obrigatório):</label>
+										            <textarea class="form-control" rows="3" id="aval03_coment" name="aval03_coment" placeholder="" data-size="big"></textarea>
+										        </div>
+										    </div>
+										</div>
+				        
+				        </div>
+						</div>
+						</div>
+						
+						<div class="panel panel-default" id="aval_qualidade">
+					  		<div class="panel-heading" style="color: #F7F7F7; background-color: #c4d79b; padding: 7px;">
+					    		<h2 class="panel-title"><span class="fluigicon fluigicon-form fluigicon-sm"></span>&nbsp;QUALIDADE</h2>
+					 		</div>
+					 		
+					 		<div class="panel-body">
+				    		<div class="row" style="margin-bottom: 1px">
+				        
+								        <div class="col-md-4" data-type="radio" data-show-properties="" data-field-name="aval04">
+								            <div class="form-input">
+								                <div class="form-group">
+								                    <label>Fornecedor realizou as entregas dentro do padrão de qualidade estabelecido em contrato?</label><span class="required text-danger"><strong>*</strong></span>
+								                    <div class="radio-options">
+								                        <div class="radio">
+								                        	<label><input type="radio" name="aval04" value="1,7">Sim</label>
+								                        	<label><input type="radio" name="aval04" value="1,7">Não</label>
+								                        </div>
+								                    </div>
+								                </div>
+								            </div>
+								        </div>
+								        
+								        <div class="col-md-8" data-type="textarea" data-show-properties="" data-field-name="aval04_coment" id="aval04_coment">
+											<div class="form-input">
+										    	<div class="form-group">
+										        	<label>Comentários (Não obrigatório):</label>
+										            <textarea class="form-control" rows="3" id="aval04_coment" name="aval04_coment" placeholder="" data-size="big"></textarea>
+										        </div>
+										    </div>
+										</div>
+										
+						</div>
+						</div>
+						</div>
+						
+						<div class="panel panel-default" id="aval_satisfacao">
+					  		<div class="panel-heading" style="color: #F7F7F7; background-color: #da9694; padding: 7px;">
+					    		<h2 class="panel-title"><span class="fluigicon fluigicon-form fluigicon-sm"></span>&nbsp;SATISFAÇÃO</h2>
+					 		</div>
+					 		
+					 		<div class="panel-body">
+				    		<div class="row" style="margin-bottom: 1px">
+				        
+								        <div class="col-md-4" data-type="radio" data-show-properties="" data-field-name="aval05">
+								            <div class="form-input">
+								                <div class="form-group">
+								                    <label>Você recomendaria esta empresa para realização de outros serviços com o Sebrae/serviços com outras empresas do mercado?</label><span class="required text-danger"><strong>*</strong></span>
+								                    <div class="radio-options">
+								                        <div class="radio">
+								                        	<label><input type="radio" name="aval05" value="3,2">Sim</label>
+								                        	<label><input type="radio" name="aval05" value="3,2">Não</label>
+								                        </div>
+								                    </div>
+								                </div>
+								            </div>
+								        </div>
+								        
+								        <div class="col-md-8" data-type="textarea" data-show-properties="" data-field-name="aval05_coment" id="aval05_coment">
+											<div class="form-input">
+										    	<div class="form-group">
+										        	<label>Comentários (Não obrigatório):</label>
+										            <textarea class="form-control" rows="3" id="aval05_coment" name="aval05_coment" placeholder="" data-size="big"></textarea>
+										        </div>
+										    </div>
+										</div>
+				        
+				        </div>
+						</div>
+						</div>
+        
+        </fieldset>	
+		
+		</div>
+		</div>
+		</div>
+		
+		</form>
+		
+		<script type="text/javascript">
+        var keyDown = false,
+            ctrl = 17,
+            vKey = 86,
+            Vkey = 118;
+
+        $(document).keydown(function(e) {
+            if (e.keyCode == ctrl) keyDown = true;
+        }).keyup(function(e) {
+            if (e.keyCode == ctrl) keyDown = false;
+        });
+
+        $('[data-only-numbers]').on('keypress', function(e) {
+            if (!e) {
+                var e = window.event;
+            }
+
+            if (e.keyCode > 0 && e.which == 0) {
+                return true;
+            }
+
+            if (e.keyCode) {
+                code = e.keyCode;
+            } else if (e.which) {
+                code = e.which;
+            }
+
+            if (code == 46) {
+                return true;
+            }
+
+            var character = String.fromCharCode(code);
+            if (character == '\b' || character == ' ' || character == '\t') {
+                return true;
+            }
+            if (keyDown && (code == vKey || code == Vkey)) {
+                return (character);
+            } else {
+                return (/[0-9]$/.test(character));
+            }
+        }).on('focusout', function(e) {
+            var $this = $(this);
+            if ($this.val() == "") {
+                return true;
+            }
+            $this.val($this.val().replace(/[^0-9\.]/g, ''));
+        }).on('paste', function(e) {
+            var $this = $(this);
+            setTimeout(function() {
+                $this.val($this.val().replace(/[^0-9\.]/g, ''));
+            }, 5);
+        });
+
+
+
+        $('.create-form-components').on('keyup', 'input[required="required"][type="text"], input[required="required"][type="number"], input[required="required"][type="date"], textarea[required="required"]', function() {
+            validationFieldsForm($(this), $(this).parents('.form-field').data('type'));
+        });
+
+        $('.create-form-components').on('change', 'input[required="required"][type="checkbox"], input[required="required"][type="radio"], select[required="required"]', function() {
+            validationFieldsForm($(this), $(this).parents('.form-field').data('type'));
+        });
+
+        function validationFieldsForm(field, type) {
+            if (type === "checkbox" || type === "radio") {
+                if (!field.is(':checked')) {
+                    field.parents('.form-field').addClass('required');
+                } else {
+                    field.parents('.form-field').removeClass('required');
+                }
+            } else {
+                if (!field.val().trim()) {
+                    field.parents('.form-field').addClass('required');
+                } else {
+                    field.parents('.form-field').removeClass('required');
+                }
+            }
+        }
+
+        var $zoomPreview = $(".zoom-preview");
+        if ($zoomPreview.length) {
+            $zoomPreview.parent().removeClass("input-group");
+            $zoomPreview.remove();
+        }
+
+        var ratings = $(".rating");
+        if (ratings.length > 0) ratingStars(ratings);
+
+        function ratingStars(stars) {
+            $.each(stars, function(i, obj) {
+                var field = $(this).closest(".form-group").find(".rating-value");
+                var tgt = $(obj);
+                tgt.html("");
+                var rating = FLUIGC.stars(tgt, {
+                    value: field.val()
+                });
+                rating.on("click", function(o) {
+                    field.val($(this).index() + 1);
+                });
+            });
+        }
+
+        $.each($("[data-date]"), function(i, o) {
+            var id = $(o).attr("id");
+            FLUIGC.calendar("#" + id);
+        });
+        
+        /*
+        $(function() { 
+        	var num = document.getElementById("rm_saldototal").value;
+        	//var numero =  $("#rm_saldototal tr:nth-child(2) td:nth-child(6)").text();
+        					
+        	//var result = (numero);
+        					
+        	if (num > 0){
+        		$("#rm_saldototal").css("background","#FF0000");
+        	}else if(num < 0){
+        		$("#rm_saldototal").css("background","#00FF00");
+        	}
+        })   
+        */
+        
+        /***************************************/
+        /***************************************/
+        /* CARREGA O ZOOM AO ABRIR O FORMULÁRIO */
+        
+        $('#colabzoom').children().one('click', function (e) {
+            var codigopessoa = document.getElementById("tbCodPessoa").value;
+            reloadZoomFilterValues('rm_dadoscolab', 'CODPESSOA,'+codigopessoa); 
+        });
+        
+        /***************************************/
+        /***************************************/
+
+        $(document).ready(function() {
+            $.each($("[data-date]"), function(i, o) {
+                var id = $(o).attr("id");
+                if ($("#" + id).attr("readonly")) {
+                    $("#" + id).data('DateTimePicker').disable();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
