@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Form</title>
+
+    <link rel="stylesheet" type="text/css" href="http://fluig.sebraepb.com.br:8080/resources/style-guide/css/fluig-style-guide.min.css">
+    <script src="http://fluig.sebraepb.com.br:8080/resources/js/jquery/jquery.js"></script>
+    <script src="http://fluig.sebraepb.com.br:8080/resources/js/jquery/jquery-ui.min.js"></script>
+    <script src="http://fluig.sebraepb.com.br:8080/resources/js/mustache/mustache-min.js"></script>
+    <script src="http://fluig.sebraepb.com.br:8080/resources/style-guide/js/fluig-style-guide.min.js"></script>
+
+    <!-- CUSTOM -->
+    <link href="http://fluig.sebraepb.com.br:8080/resources/style-guide/css/fluig-style-guide-filter.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fluig.sebraepb.com.br:8080/resources/style-guide/css/fluig-style-guide-ratingstars.min.css" rel="stylesheet" type="text/css">
+    <script src="http://fluig.sebraepb.com.br:8080/resources/style-guide/js/fluig-style-guide-filter.min.js"></script>
+    <script src="http://fluig.sebraepb.com.br:8080/resources/style-guide/js/fluig-style-guide-ratingstars.min.js"></script>
+
+    <link href='http://fluig.sebraepb.com.br:8080/webdesk/customresources?cid=1&resourceName=temaFormulario/0.css' type='text/css' rel='stylesheet' />
+    
+    <script>
+		 		function setSelectedZoomItem(selectedItem) {
+		 			var codgrupoprod = selectedItem["CODIGOGRUPO"];
+		 			var codprod = selectedItem["CODIGOPRD"];
+		 			var idprd = selectedItem["IDPRD"];
+		 			
+		 			var gerente = selectedItem["GERENTE"];
+		 			var gerenteusuario = selectedItem["GERENTEUSUARIO"];
+		 			var diretor = selectedItem["DIRETOR"];
+		 			var agencia = selectedItem["SECAO"];
+		 			var codfilial = selectedItem["CODFILIAL"];
+		 			var codven = selectedItem["CODVEN"];
+		 			var coddepto = selectedItem["CODDEPTO"];
+		 			var depto = selectedItem["DEPTO"];
+		 			
+		 			var codigoprojeto = selectedItem["CODPROJETO"];
+		 			var codigoacao = selectedItem["CODACAO"];
+		 			var unidade = selectedItem["UNIDADE"];
+		 			var codunidade = selectedItem["CODUNIDADE"];
+		 			
+		 			var codfilial = selectedItem["CODFILIAL"];
+		 			
+		 			//var coddepto = selectedItem["CODDEPARTAMENTO"];
+		 			var codrecurso = selectedItem["CODRECURSO"];
+		 			
+		 			var teste = selectedItem.inputId;
+		 			//console.log("INPUT ID:" + teste);
+		 			
+		 			var zoomitm = selectedItem.inputName; 
+		 			var catlinha = zoomitm.substring(0,12);
+		 			//console.log("INPUT ID CAT:" + catlinha);
+		 			var itemlinha = zoomitm.substring(0,7);
+		 			//console.log("INPUT ID ITM:" + itemlinha);
+		 			
+		 			if (selectedItem.inputId == "rm_grupoprod") {
+						reloadZoomFilterValues("rm_produto", "CODIGOPRD,"+codgrupoprod);
+		 			} else if(selectedItem.inputId == "rm_produto"){
+		 				document.getElementById("rmcodprod").value = codprod;
+		 				document.getElementById("rmidprd").value = idprd;
+		 			} else if (selectedItem.inputId == "rm_dadoscolab"){
+		 				document.getElementById("tbGerente").value = gerente;
+		 				document.getElementById("tbGerenteUsuario").value = gerenteusuario;
+		 				document.getElementById("tbDiretor").value = diretor;
+		 				document.getElementById("tbAgencia").value = agencia;
+		 				document.getElementById("tbFilial").value = codfilial;
+		 				document.getElementById("tbCodVen").value = codven;
+		 				document.getElementById("rm_depto").value = depto;
+		 				document.getElementById("rm_coddepto").value = coddepto;
+		 				//reloadZoomFilterValues("rm_depto", "CODFILIALDEPTO,"+codfilial);
+		 			} else if(selectedItem.inputId == "rmprojeto"){
+		 				reloadZoomFilterValues("rmacao", "CODPROJETOACAO,"+codigoprojeto);
+		 			} else if(selectedItem.inputId == "rmacao"){
+		 				//reloadZoomFilterValues("rmunidade", "CODPROJETOACAOUNIDADE,"+codigoacao);
+		 				document.getElementById("rmunidade").value = unidade;
+		 				document.getElementById("rm_codunidade").value = codunidade;
+		 			//} else if(selectedItem.inputId == "rm_depto"){
+		 				//document.getElementById("rm_coddepto").value = coddepto;
+		 			} else if(selectedItem.inputId == "rmrecurso"){
+		 				document.getElementById("rm_codrecurso").value = codrecurso;
+		 			} else if(catlinha == "rm_categoria"){
+		 				
+		 				var cLinha = selectedItem.inputName.substring(12,selectedItem.inputName.lenght);
+		 				//var cImLinha = selectedItem.inputName.substring(9,selectedItem.inputName.lenght);
+		 				//console.log("Linha Categoria"+cLinha);
+		 				//console.log("Linha Item"+cImLinha);
+		 				var categorialinha = selectedItem["CODIGOGRUPO"] + cLinha;
+		 				var catlinha = selectedItem["CODIGOGRUPO"];
+		 				//console.log("LINHA CATEGORIA: "+categorialinha);
+		 				
+		 				reloadZoomFilterValues("rm_item"+cLinha, "CODIGOPRD,"+catlinha);
+		 			} else if(itemlinha = "rm_item"){
+		 				var cImLinha = selectedItem.inputName.substring(7,selectedItem.inputName.lenght);
+		 				var prodcod = selectedItem["CODIGOPRD"];
+		 				var idcod = selectedItem["IDPRD"];
+		 				document.getElementById("rm_codprod"+cImLinha).value = prodcod;
+		 				document.getElementById("rm_idprod"+cImLinha).value = idcod;
+		 			}
+		 			
+		 		}
+	</script>
+</head>
+
+<body class="fluig-style-guide">
+
+    <form class="totvs-form grid vertical create-form-components ui-sortable t0" name="createFormComponents" style="padding-left: 10px; padding-right: 10px;">       
+        
+        <!--cabeçalho-->
+		<div class="panel panel-default" >
+			<div class="panel-body">
+				<div class="col-md-3">
+					<img src="logo.png" alt="logo"></img>
+				</div>
+				<div class="col-md-9">
+					<h1>Solicitação de Material de Expediente</h1>
+				</div>
+			</div>
+		</div>
+             
+        <!-- Painel dos Dados -->
+        
+        <div class="panel panel-default" id="painel_dados">
+			  		<div class="panel-heading" style="color: #F7F7F7; background-color: #2e66b7; padding: 7px;">
+			    		<h2 class="panel-title"><span class="fluigicon fluigicon-form fluigicon-sm"></span>&nbsp;Dados da Solicitação</h2>
+			 		</div>
+			 		
+			 		<div class="panel-body">
+		    		<div class="row" style="margin-bottom: 50px">
+        
+        <!-- *** Dados do Usuário *** -->
+        <fieldset id="fsUsuario" name="fsUsuario">
+						
+						<legend><h3><span class="fluigicon fluigicon-user fluigicon-md"></span>&nbsp;Usuário</h3></legend>												    						    	
+						
+						<div class="col-md-12">
+							<div class="form-input">
+								<div class="form-group">					
+									<label for="tbNomePessoa"></label>
+									<div class="row">
+										<div class="col-xs-2 col-sm-2 col-md-2"><label>Login</label>
+									       	<input type="text" class="form-control" id="tbCodPessoa" name="tbCodPessoa"
+											readonly/>
+										</div>
+											
+										<div class="col-xs-6 col-sm-6 col-md-6"><label>Nome</label>
+										   	<input type="text" class="form-control" id="tbNomePessoa" name="tbNomePessoa" 
+										   	readonly/>
+										</div>
+																	
+										<div class="col-xs-6 col-sm-6 col-md-6 fs-no-padding-left" style="display: none;">
+										   	<input type="text" class="form-control" id="tbChapaPessoa" name="tbChapaPessoa" 
+										   	readonly/>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div class="col-md-12" data-type="zoomfield" data-show-properties="" data-field-name="rm_dadoscolab" id="colabzoom">
+								<div class="form-input">
+									<div class="form-group">
+										<label for="zoom">Dados do Colaborador</label><span class="required text-danger"><strong>*</strong></span>
+										<div class="input-group">
+											<input type="zoom" name="rm_dadoscolab" id="rm_dadoscolab"
+												data-zoom="{'displayKey':'NOME','datasetId':'rm_consulta_dadoscolaborador',
+													'fields':[
+		 			                    				{'field':'NOME','label':'Colaborador','standard':true},
+		 			                    				{'field':'SECAO','label':'Agência','standard':true},
+		 			                    				{'field':'DIRETOR','label':'Diretor','standard':true},
+		 			                    				{'field':'GERENTE','label':'Gerente','standard':true}]}">
+											<div class="input-group-addon zoom-preview">
+												<span class="fluigicon fluigicon-zoom-in"></span>
+											</div>
+										</div>
+									</div>
+								</div>
+						</div>
+						
+						<div class="col-md-3" data-type="textbox" data-show-properties="" data-field-name="tbGerente">
+				            <div class="form-input">
+				                <div class="form-group"><label>Gerente</label>
+				                	<input type="text" class="form-control" id="tbGerente" name="tbGerente" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-3" data-type="textbox" data-show-properties="" data-field-name="tbDiretor">
+				            <div class="form-input">
+				                <div class="form-group"><label>Diretor</label>
+				                	<input type="text" class="form-control" id="tbDiretor" name="tbDiretor" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-6" data-type="textbox" data-show-properties="" data-field-name="tbAgencia">
+				            <div class="form-input">
+				                <div class="form-group"><label>Agência</label>
+				                	<input type="text" class="form-control" id="tbAgencia" name="tbAgencia" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-1" data-type="textbox" data-show-properties="" data-field-name="tbFilial" style="display: none;">
+				            <div class="form-input">
+				                <div class="form-group"><label>Filial</label>
+				                	<input type="text" class="form-control" id="tbFilial" name="tbFilial" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-2" data-type="textbox" data-show-properties="" data-field-name="tbGerenteUsuario" style="display: none;">
+				            <div class="form-input">
+				                <div class="form-group"><label>Gerente Usuario</label>
+				                	<input type="text" class="form-control" id="tbGerenteUsuario" name="tbGerenteUsuario" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+		        		
+		        		<div class="col-md-2" data-type="textbox" data-show-properties="" data-field-name="tbCodVen" style="display: none;">
+				            <div class="form-input">
+				                <div class="form-group"><label>Cod.Ven</label>
+				                	<input type="text" class="form-control" id="tbCodVen" name="tbCodVen" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        		</div>
+						
+		</fieldset>
+		
+		
+		
+		<!-- *** Dados da Requisição *** -->	
+		<fieldset id="fsRequisicao" name="fsRequisicao">
+				<legend><h3><span class="fluigicon fluigicon-newspaper fluigicon-md"></span>&nbsp;Informativos</h3></legend>
+                
+        
+		        <div class="col-md-2" data-type="date" data-show-properties="" data-field-name="date2">
+		            <div class="form-input">
+		                <div class="form-group">
+		                    <label>Data:</label><span class="required text-danger"><strong>*</strong></span>
+		                    <input id="date2" type="text" class="form-control" name="date2" data-date="">
+		                </div>
+		            </div>
+		        </div>	        	       
+		        
+		        <div class="col-md-12" data-type="textarea" data-show-properties="" data-field-name="rmobservacao" id="rmobservacao">
+		            <div class="form-input">
+		                <div class="form-group">
+		                    <label>Observação:</label>
+		                    <textarea class="form-control" rows="4" id="rm_observacao" name="rm_observacao" placeholder="" data-size="big"></textarea>
+		                </div>
+		            </div>
+		        </div>
+        		
+        		<div class="col-md-6" data-type="zoomfield" data-show-properties="" data-field-name="rmprojeto">
+						<div class="form-input">
+							<div class="form-group">
+								<label for="zoom">Projeto:</label><span class="required text-danger"><strong>*</strong></span>
+								<div class="input-group">
+									<input type="zoom" name="rmprojeto" id="rmprojeto"
+										data-zoom="{'displayKey':'PROJETO','datasetId':'rm_consulta_projeto',
+											'fields':[
+ 			                    				{'field':'PROJETO','label':'Projeto','standard':true},
+ 			                    				{'field':'CODPROJETO','label':'Cod.','standard':true}]}">
+									<div class="input-group-addon zoom-preview">
+										<span class="fluigicon fluigicon-zoom-in"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+				</div>
+        		
+        		<div class="col-md-6" data-type="zoomfield" data-show-properties="" data-field-name="rmacao">
+						<div class="form-input">
+							<div class="form-group">
+								<label for="zoom">Ação:</label><span class="required text-danger"><strong>*</strong></span>
+								<div class="input-group">
+									<input type="zoom" name="rmacao" id="rmacao"
+										data-zoom="{'displayKey':'ACAO','datasetId':'rm_consulta_acao',
+											'fields':[
+ 			                    				{'field':'ACAO','label':'Ação','standard':true},
+ 			                    				{'field':'CODACAO','label':'Cod.','standard':true}]}">
+									<div class="input-group-addon zoom-preview">
+										<span class="fluigicon fluigicon-zoom-in"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+				</div>
+
+				<div class="col-md-6" data-type="textbox" data-show-properties="" data-field-name="rmunidade">
+		            <div class="form-input">
+		                <div class="form-group"><label>Unidade:</label>
+		                	<input type="text" class="form-control" id="rmunidade" name="rmunidade" value="" placeholder="" data-size="big" readonly>
+		                </div>
+		            </div>
+        		</div>
+        		
+        		<div class="col-md-1" data-type="textbox" data-show-properties="" data-field-name="rm_codunidade" style="display: none;">
+		            <div class="form-input">
+		                <div class="form-group"><label>Cod.Unidade</label><span class="required text-danger"><strong>*</strong></span>
+		                	<input type="text" class="form-control" id="rm_codunidade" name="rm_codunidade" value="" placeholder="" data-size="big" readonly>
+		                </div>
+		            </div>
+        		</div>
+        		
+<!--         		<div class="col-md-6" data-type="textbox" data-show-properties="" data-field-name="rmrecurso"> -->
+<!-- 		            <div class="form-input"> -->
+<!-- 		                <div class="form-group"><label>Recurso</label> -->
+<!-- 		                	<input type="text" class="form-control" id="rm_recurso" name="rm_recurso" value="" placeholder="" data-size="big"> -->
+<!-- 		                </div> -->
+<!-- 		            </div> -->
+<!--         		</div> -->
+        		
+        		<div class="col-md-6" data-type="zoomfield" data-show-properties="" data-field-name="rmrecurso">
+						<div class="form-input">
+							<div class="form-group">
+								<label for="zoom">Recurso:</label>
+								<div class="input-group">
+									<input type="zoom" name="rmrecurso" id="rmrecurso"
+										data-zoom="{'displayKey':'RECURSO','datasetId':'rm_consulta_recurso',
+											'fields':[
+ 			                    				{'field':'RECURSO','label':'Recurso','standard':true},
+ 			                    				{'field':'CODRECURSO','label':'Cod.','standard':true}]}">
+									<div class="input-group-addon zoom-preview">
+										<span class="fluigicon fluigicon-zoom-in"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+				</div>
+				
+				<div class="col-md-1" data-type="textbox" data-show-properties="" data-field-name="rm_codrecurso" style="display: none;">
+		            <div class="form-input">
+		                <div class="form-group"><label>Cod.Recurso</label>
+		                	<input type="text" class="form-control" id="rm_codrecurso" name="rm_codrecurso" value="" placeholder="" data-size="big" readonly>
+		                </div>
+		            </div>
+        		</div>
+        		
+        		<div class="col-md-8" data-type="textbox" data-show-properties="" data-field-name="rm_depto">
+				            <div class="form-input">
+				                <div class="form-group"><label>Departamento</label>
+				                	<input type="text" class="form-control" id="rm_depto" name="rm_depto" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        </div>
+		        		
+		        <div class="col-md-1" data-type="textbox" data-show-properties="" data-field-name="rm_coddepto" style="display: none;">
+				            <div class="form-input">
+				                <div class="form-group"><label>Cod.Depto</label>
+				                	<input type="text" class="form-control" id="rm_coddepto" name="rm_coddepto" value="" placeholder="" data-size="big" readonly>
+				                </div>
+				            </div>
+		        </div>
+        		
+<!--         		<div class="col-md-8" data-type="zoomfield" data-show-properties="" data-field-name="rm_depto"> -->
+<!-- 						<div class="form-input"> -->
+<!-- 							<div class="form-group"> -->
+<!-- 								<label for="zoom">Departamento:</label> -->
+<!-- 								<div class="input-group"> -->
+<!-- 									<input type="zoom" name="rm_depto" id="rm_depto" -->
+<!-- 										data-zoom="{'displayKey':'DEPARTAMENTO','datasetId':'rm_consulta_departamento', -->
+<!-- 											'fields':[ -->
+<!--  			                    				{'field':'DEPARTAMENTO','label':'Departamento','standard':true}, -->
+<!--  			                    				{'field':'CODDEPARTAMENTO','label':'Cod.','standard':true}]}"> -->
+<!-- 									<div class="input-group-addon zoom-preview"> -->
+<!-- 										<span class="fluigicon fluigicon-zoom-in"></span> -->
+<!-- 									</div> -->
+<!-- 								</div> -->
+<!-- 							</div> -->
+<!-- 						</div> -->
+<!-- 				</div> -->
+				
+<!-- 				<div class="col-md-1" data-type="textbox" data-show-properties="" data-field-name="rm_coddepto" style="display: none;"> -->
+<!-- 		            <div class="form-input"> -->
+<!-- 		                <div class="form-group"><label>Cod.Depto</label> -->
+<!-- 		                	<input type="text" class="form-control" id="rm_coddepto" name="rm_coddepto" value="" placeholder="" data-size="big" readonly> -->
+<!-- 		                </div> -->
+<!-- 		            </div> -->
+<!--         		</div> -->
+        		
+        </fieldset>
+        		
+        <!-- *** Dados da Requisição *** -->	
+		<fieldset id="fsMateriais" name="fsMateriais">
+				<legend><h3><span class="fluigicon fluigicon-plus-circle fluigicon-md"></span>&nbsp;Materiais</h3></legend>	
+				
+				<div class="col-md-1" data-type="textbox" data-show-properties="" data-field-name="rmcodprod" style="display: none;">
+		            <div class="form-input">
+		                <div class="form-group"><label>Código</label>
+		                	<input type="text" class="form-control" id="rmcodprod" name="rmcodprod" value="" placeholder="" data-size="big" readonly>
+		                </div>
+		            </div>
+        		</div>
+        		
+        		<div class="col-md-1" data-type="textbox" data-show-properties="" data-field-name="rmidprd" style="display: none;">
+		            <div class="form-input">
+		                <div class="form-group"><label>IdPrd</label>
+		                	<input type="text" class="form-control" id="rmidprd" name="rmidprd" value="" placeholder="" data-size="big" readonly>
+		                </div>
+		            </div>
+        		</div>
+		        	        
+		        
+				<!-- Lista de Produtos -->
+		        
+		        <div class="col-md-12" data-type="tabledetail" data-show-properties="" data-field-name="lista_de_itens">
+		            <div class="form-input">
+		               <div class="form-group">
+		                  <label>Lista de Produtos</label>
+		                  <table tablename="tableItem" id="tableItem" class="table" noaddbutton="true" >
+		                     <thead>
+		                        <tr class="tableHeadRow">
+		                           <th class="tableColumn">Categoria dos Itens</th>
+		                           <th class="tableColumn">Item</th>
+		                           <th class="tableColumn">Quant.</th>	                           
+		                        </tr>
+		                     </thead>
+		                     <tbody>
+		                        <tr class="tableBodyRow">
+		                           <td class="col-md-4">	                              					       
+					                    <div class="input-group" data-type="zoomfield" data-show-properties="" data-field-name="rm_categoria">
+														<input type="zoom" name="rm_categoria" id="rm_categoria"
+															data-zoom="{'displayKey':'PRODUTOGRUPO','datasetId':'rm_consulta_grupoitensrequisicao',
+																'fields':[
+					 			                    				{'field':'PRODUTOGRUPO','label':'Categoria','standard':true},
+					 			                    				{'field':'CODIGOGRUPO','label':'Cod.','standard':true}]}">
+														<div class="input-group-addon zoom-preview">
+															<span class="fluigicon fluigicon-zoom-in"></span>
+														</div>
+										</div>							            	                              
+		                           </td>
+		                           
+		                           <td class="col-md-4">	                              					       
+					                    <div class="input-group" data-type="zoomfield" data-show-properties="" data-field-name="rm_item">
+														<input type="zoom" name="rm_item" id="rm_item"
+															data-zoom="{'displayKey':'PRODUTO','datasetId':'rm_consulta_itensrequisicao',
+																'fields':[
+					 			                    				{'field':'PRODUTO','label':'Produto','standard':true},
+					 			                    				{'field':'CODIGOPRD','label':'Cod.','standard':true}]}">
+														<div class="input-group-addon zoom-preview">
+															<span class="fluigicon fluigicon-zoom-in"></span>
+														</div>
+										</div>							            	                              
+		                           </td>
+		                           
+		                           <td class="col-md-2">
+		                              <div class="form-input">
+		                              	<input type="text" class="form-control" id="rmquant" name="rmquant" value="" placeholder="" data-size="big">
+		                              </div>
+		                           </td>
+		                           
+		                           <td class="col-md-2" style="display: none;">
+		                              <div class="form-input" >
+		                              	<input type="text" class="form-control" id="rm_codprod" name="rm_codprod" value="" placeholder="" data-size="big" readonly>
+		                              </div>
+		                           </td>
+		                           
+		                           <td class="col-md-2" style="display: none;">
+		                              <div class="form-input" >
+		                              	<input type="text" class="form-control" id="rm_idprod" name="rm_idprod" value="" placeholder="" data-size="big" readonly>
+		                              </div>
+		                           </td>
+		                           
+		                        </tr>
+		                     </tbody>
+		                  </table>
+		                  <button type="button" class="btn btn-primary" onclick="wdkAddChild('tableItem')">Incluir Item</button>
+		               </div>
+		            </div>
+		         </div>
+        
+        </fieldset>
+        
+        </div>
+        </div>
+        </div>
+        
+        <!-- Painel dos Dados -->
+        
+        <div class="panel panel-default" id="painel_aprov">
+			  		<div class="panel-heading" style="color: #F7F7F7; background-color: #2e66b7; padding: 7px;">
+			    		<h2 class="panel-title"><span class="fluigicon fluigicon-form fluigicon-sm"></span>&nbsp;Aprovação</h2>
+			 		</div>
+			 		
+			 		<div class="panel-body">
+		    		<div class="row" style="margin-bottom: 50px">
+        
+        <!-- *** Dados da Requisição *** -->	
+		<fieldset id="fsAprovGerente" name="fsAprovGerente">
+				
+				
+				<div class="col-md-12" data-type="radio" data-show-properties="" data-field-name="aprovGerente">
+				            <div class="form-input">
+				                <div class="form-group">
+				                    <label>Parecer do Gerente:</label>
+				                    <div class="radio-options">
+				                        <div class="radio"><label><input type="radio" id="aprovGerente" name="aprovGerente" value="Sim">Deferido</label></div>
+				                        <div class="radio"><label><input type="radio" id="aprovGerente" name="aprovGerente" value="Nao">Indeferido</label></div>
+				                    </div>
+				                </div>
+				            </div>
+				</div>
+				        
+				<div class="col-md-12" data-type="textarea" data-show-properties="" data-field-name="obsaprovGerente" id="obsaprovGerente">
+							<div class="form-input">
+						    	<div class="form-group">
+						        	<label>Comentários:</label>
+						            <textarea class="form-control" rows="3" id="obsaprovGerente" name="obsaprovGerente" placeholder="" data-size="big"></textarea>
+						        </div>
+						    </div>
+				</div>
+				
+		</fieldset>
+		
+		</div>
+		</div>
+		</div>
+		
+
+    </form>
+
+
+    <script type="text/javascript">
+        var keyDown = false,
+            ctrl = 17,
+            vKey = 86,
+            Vkey = 118;
+
+        $(document).keydown(function(e) {
+            if (e.keyCode == ctrl) keyDown = true;
+        }).keyup(function(e) {
+            if (e.keyCode == ctrl) keyDown = false;
+        });
+
+        $('[data-only-numbers]').on('keypress', function(e) {
+            if (!e) {
+                var e = window.event;
+            }
+
+            if (e.keyCode > 0 && e.which == 0) {
+                return true;
+            }
+
+            if (e.keyCode) {
+                code = e.keyCode;
+            } else if (e.which) {
+                code = e.which;
+            }
+
+            if (code == 46) {
+                return true;
+            }
+
+            var character = String.fromCharCode(code);
+            if (character == '\b' || character == ' ' || character == '\t') {
+                return true;
+            }
+            if (keyDown && (code == vKey || code == Vkey)) {
+                return (character);
+            } else {
+                return (/[0-9]$/.test(character));
+            }
+        }).on('focusout', function(e) {
+            var $this = $(this);
+            if ($this.val() == "") {
+                return true;
+            }
+            $this.val($this.val().replace(/[^0-9\.]/g, ''));
+        }).on('paste', function(e) {
+            var $this = $(this);
+            setTimeout(function() {
+                $this.val($this.val().replace(/[^0-9\.]/g, ''));
+            }, 5);
+        });
+
+
+
+        $('.create-form-components').on('keyup', 'input[required="required"][type="text"], input[required="required"][type="number"], input[required="required"][type="date"], textarea[required="required"]', function() {
+            validationFieldsForm($(this), $(this).parents('.form-field').data('type'));
+        });
+
+        $('.create-form-components').on('change', 'input[required="required"][type="checkbox"], input[required="required"][type="radio"], select[required="required"]', function() {
+            validationFieldsForm($(this), $(this).parents('.form-field').data('type'));
+        });
+
+        function validationFieldsForm(field, type) {
+            if (type === "checkbox" || type === "radio") {
+                if (!field.is(':checked')) {
+                    field.parents('.form-field').addClass('required');
+                } else {
+                    field.parents('.form-field').removeClass('required');
+                }
+            } else {
+                if (!field.val().trim()) {
+                    field.parents('.form-field').addClass('required');
+                } else {
+                    field.parents('.form-field').removeClass('required');
+                }
+            }
+        }
+
+        var $zoomPreview = $(".zoom-preview");
+        if ($zoomPreview.length) {
+            $zoomPreview.parent().removeClass("input-group");
+            $zoomPreview.remove();
+        }
+
+        var ratings = $(".rating");
+        if (ratings.length > 0) ratingStars(ratings);
+
+        function ratingStars(stars) {
+            $.each(stars, function(i, obj) {
+                var field = $(this).closest(".form-group").find(".rating-value");
+                var tgt = $(obj);
+                tgt.html("");
+                var rating = FLUIGC.stars(tgt, {
+                    value: field.val()
+                });
+                rating.on("click", function(o) {
+                    field.val($(this).index() + 1);
+                });
+            });
+        }
+
+        $.each($("[data-date]"), function(i, o) {
+            var id = $(o).attr("id");
+            FLUIGC.calendar("#" + id);
+        });
+        
+        /***************************************/
+        /***************************************/
+        /* CARREGA O ZOOM AO ABRIR O FORMULÁRIO */
+        
+        $('#colabzoom').children().one('click', function (e) {
+            var codigopessoa = document.getElementById("tbCodPessoa").value;
+            reloadZoomFilterValues('rm_dadoscolab', 'CODPESSOA,'+codigopessoa); 
+        });
+        
+        /***************************************/
+        /***************************************/
+
+        $(document).ready(function() {
+            $.each($("[data-date]"), function(i, o) {
+                var id = $(o).attr("id");
+                if ($("#" + id).attr("readonly")) {
+                    $("#" + id).data('DateTimePicker').disable();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
