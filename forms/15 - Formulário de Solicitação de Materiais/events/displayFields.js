@@ -15,7 +15,8 @@ function displayFields(form,customHTML){
 		var colleague = DatasetFactory.getDataset("colleague", null, constraints, null);
 		
 		form.setValue('tbNomePessoa', colleague.getValue(0,"colleagueName"));
-		form.setValue('tbCodPessoa', colleague.getValue(0,"login"));
+		/*form.setValue('tbCodPessoa', colleague.getValue(0,"login"));*/
+		form.setValue('tbCodPessoa', colleague.getValue(0,"mail"));
 		
 		if (colleague.rowsCount > 0) {
 			
